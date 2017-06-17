@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
     
     文件名：TenPayV3Controller.cs
     文件功能描述：微信支付V3Controller
@@ -134,20 +134,20 @@ namespace Senparc.Weixin.MP.Sample.Controllers
                 if (string.IsNullOrEmpty(sp_billno))
                 {
                     //生成订单10位序列号，此处用时间和随机数生成，商户根据自己调整，保证唯一
-                    sp_billno = string.Format("{0}{1}{2}", TenPayV3Info.MchId, DateTime.Now.ToString("yyyyMMdd"),
-                        TenPayV3Util.BuildRandomStr(10));
+                    sp_billno = string.Format("{0}{1}{2}", TenPayV3Info.MchId/*10位*/, DateTime.Now.ToString("yyyyMMddHHmmss"),
+                        TenPayV3Util.BuildRandomStr(6));
                 }
-                else
-                {
-                    sp_billno = Request["order_no"];
-                }
+                //else
+                //{
+                //    sp_billno = Request["order_no"];
+                //}
 
                 var timeStamp = TenPayV3Util.GetTimestamp();
                 var nonceStr = TenPayV3Util.GetNoncestr();
 
                 var body = product == null ? "test" : product.Name;
-                var price = product == null ? 100 : product.Price * 100;
-                var xmlDataInfo = new TenPayV3RequestData(TenPayV3Info.AppId, TenPayV3Info.MchId, body, sp_billno, price, Request.UserHostAddress, TenPayV3Info.TenPayV3Notify, TenPayV3Type.JSAPI, openIdResult.openid, TenPayV3Info.Key, nonceStr);
+                var price = product == null ? 100 : (int)product.Price * 100;
+                var xmlDataInfo = new TenPayV3UnifiedorderRequestData(TenPayV3Info.AppId, TenPayV3Info.MchId, body, sp_billno, price, Request.UserHostAddress, TenPayV3Info.TenPayV3Notify, TenPayV3Type.JSAPI, openIdResult.openid, TenPayV3Info.Key, nonceStr);
 
                 var result = TenPayV3.Unifiedorder(xmlDataInfo);//调用统一订单接口
 
@@ -230,7 +230,7 @@ namespace Senparc.Weixin.MP.Sample.Controllers
             //创建支付应答对象
             //RequestHandler packageReqHandler = new RequestHandler(null);
 
-            var sp_billno = DateTime.Now.ToString("HHmmss") + TenPayV3Util.BuildRandomStr(28);
+            var sp_billno = DateTime.Now.ToString("HHmmss") + TenPayV3Util.BuildRandomStr(26);//最多32位
             var nonceStr = TenPayV3Util.GetNoncestr();
 
             //创建请求统一订单接口参数
@@ -251,7 +251,7 @@ namespace Senparc.Weixin.MP.Sample.Controllers
 
             //string data = packageReqHandler.ParseXML();
 
-            var xmlDataInfo = new TenPayV3RequestData(TenPayV3Info.AppId, TenPayV3Info.MchId, "test", sp_billno, 1, Request.UserHostAddress, TenPayV3Info.TenPayV3Notify, TenPayV3Type.JSAPI, productId, TenPayV3Info.Key, nonceStr);
+            var xmlDataInfo = new TenPayV3UnifiedorderRequestData(TenPayV3Info.AppId, TenPayV3Info.MchId, "test", sp_billno, 1, Request.UserHostAddress, TenPayV3Info.TenPayV3Notify, TenPayV3Type.JSAPI, openId, TenPayV3Info.Key, nonceStr);
 
 
             try
@@ -294,7 +294,7 @@ namespace Senparc.Weixin.MP.Sample.Controllers
             //创建支付应答对象
             //RequestHandler packageReqHandler = new RequestHandler(null);
 
-            var sp_billno = DateTime.Now.ToString("HHmmss") + TenPayV3Util.BuildRandomStr(28);
+            var sp_billno = DateTime.Now.ToString("HHmmss") + TenPayV3Util.BuildRandomStr(26);
             var nonceStr = TenPayV3Util.GetNoncestr();
 
             //商品Id，用户自行定义
@@ -316,7 +316,7 @@ namespace Senparc.Weixin.MP.Sample.Controllers
             //packageReqHandler.SetParameter("sign", sign);
 
             //string data = packageReqHandler.ParseXML();
-            var xmlDataInfo = new TenPayV3RequestData(TenPayV3Info.AppId, TenPayV3Info.MchId, "test", sp_billno, 1, Request.UserHostAddress, TenPayV3Info.TenPayV3Notify, TenPayV3Type.NATIVE, productId, TenPayV3Info.Key, nonceStr);
+            var xmlDataInfo = new TenPayV3UnifiedorderRequestData(TenPayV3Info.AppId, TenPayV3Info.MchId, "test", sp_billno, 1, Request.UserHostAddress, TenPayV3Info.TenPayV3Notify, TenPayV3Type.NATIVE, productId, TenPayV3Info.Key, nonceStr);
             //调用统一订单接口
             var result = TenPayV3.Unifiedorder(xmlDataInfo);
             //var unifiedorderRes = XDocument.Parse(result);

@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
 
     文件名：Enums.cs
     文件功能描述：枚举类型
@@ -18,6 +18,12 @@
 
     修改标识：Senparc - 20161215
     修改描述：v4.9.5 添加Sex枚举
+
+    修改标识：Senparc - 20161215
+    修改描述：v4.9.9 添加【ReturnCode.template_id】不正确枚举
+
+    修改标识：Senparc - 20170302
+    修改描述：v4.11.1 添加【ReturnCode.appsecret不正确】枚举类型（invalid appsecret，40125）
 ----------------------------------------------------------------*/
 
 namespace Senparc.Weixin
@@ -73,10 +79,15 @@ namespace Senparc.Weixin
         不合法的openid列表长度 = 40032,
         不合法的请求字符不能包含uxxxx格式的字符 = 40033,
         不合法的参数 = 40035,
+
+        //小程序、 公众号都有
+        template_id不正确 = 40037,
+
         不合法的请求格式 = 40038,
         不合法的URL长度 = 40039,
         不合法的分组id = 40050,
         分组名字不合法 = 40051,
+        appsecret不正确 = 40125,//invalid appsecret
         缺少access_token参数 = 41001,
         缺少appid参数 = 41002,
         缺少refresh_token参数 = 41003,
@@ -86,6 +97,12 @@ namespace Senparc.Weixin
         缺少子菜单数据 = 41007,
         缺少oauth_code = 41008,
         缺少openid = 41009,
+
+        //小程序
+        form_id不正确_或者过期 = 41028,
+        form_id已被使用 = 41029,
+        page不正确 = 41030,
+
         access_token超时 = 42001,
         refresh_token超时 = 42002,
         oauth_code超时 = 42003,
@@ -143,8 +160,6 @@ namespace Senparc.Weixin
         发送消息失败_该用户已被加入黑名单_无法向此发送消息 = 62751,
         发送消息失败_对方关闭了接收消息 = 10703,
         对方不是粉丝 = 10700
-
-
     }
 
     /// <summary>
@@ -183,7 +198,7 @@ namespace Senparc.Weixin
         不合法的请求字符_不能包含uxxxx格式的字符 = 40033,
         不合法的参数 = 40035,
 
-        //小程序
+        //小程序、 公众号都有
         template_id不正确 = 40037,
 
         不合法的请求格式 = 40038,

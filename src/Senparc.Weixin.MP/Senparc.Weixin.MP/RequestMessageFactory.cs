@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
   
     文件名：RequestMessageFactory.cs
     文件功能描述：获取XDocument转换后的IRequestMessageBase实例
@@ -12,6 +12,7 @@
     
     修改标识：Senparc - 20150327
     修改描述：添加小视频类型
+
 ----------------------------------------------------------------*/
 
 using System;

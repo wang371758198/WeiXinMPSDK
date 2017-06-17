@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
 
     文件名：Get.cs
     文件功能描述：Get
@@ -12,11 +12,15 @@
 
     修改标识：zeje - 20160422
     修改描述：v4.5.19 为GetJson方法添加maxJsonLength参数
+
+    修改标识：zeje - 20170305
+    修改描述：v14.3.132 添加Get.DownloadAsync(string url, string dir)方法
 ----------------------------------------------------------------*/
 
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
@@ -44,7 +48,7 @@ namespace Senparc.Weixin.HttpUtility
         {
             string returnText = RequestUtility.HttpGet(url, encoding);
 
-            WeixinTrace.SendLog(url, returnText);
+            WeixinTrace.SendApiLog(url, returnText);
 
             JavaScriptSerializer js = new JavaScriptSerializer();
             if (maxJsonLength.HasValue)
@@ -88,12 +92,39 @@ namespace Senparc.Weixin.HttpUtility
             }
         }
 
+        /// <summary>
+        /// 从Url下载，并保存到指定目录
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        public static string Download(string url, string dir)
+        {
+            Directory.CreateDirectory(dir);
+            System.Net.Http.HttpClient httpClient = new HttpClient();
+            using (var responseMessage = httpClient.GetAsync(url).Result)
+            {
+                if (responseMessage.StatusCode == HttpStatusCode.OK)
+                {
+                    var fullName = Path.Combine(dir, responseMessage.Content.Headers.ContentDisposition.FileName.Trim('"'));
+                    using (var fs = File.Open(fullName, FileMode.Create))
+                    {
+                        using (var responseStream = responseMessage.Content.ReadAsStreamAsync().Result)
+                        {
+                            responseStream.CopyTo(fs);
+                            return fullName;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
         #endregion
 
         #region 异步方法
 
         /// <summary>
-        /// 异步GetJsonA
+        /// 【异步方法】异步GetJson
         /// </summary>
         /// <param name="url"></param>
         /// <param name="encoding"></param>
@@ -130,7 +161,7 @@ namespace Senparc.Weixin.HttpUtility
         }
 
         /// <summary>
-        /// 异步从Url下载
+        /// 【异步方法】异步从Url下载
         /// </summary>
         /// <param name="url"></param>
         /// <param name="stream"></param>
@@ -149,6 +180,35 @@ namespace Senparc.Weixin.HttpUtility
             //}
         }
 
+        /// <summary>
+        /// 【异步方法】从Url下载，并保存到指定目录
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="dir"></param>
+        /// <returns></returns>
+        public static async Task<string> DownloadAsync(string url, string dir)
+        {
+            Directory.CreateDirectory(dir);
+            System.Net.Http.HttpClient httpClient = new HttpClient();
+            using (var responseMessage = await httpClient.GetAsync(url))
+            {
+                if (responseMessage.StatusCode == HttpStatusCode.OK)
+                {
+                    var fullName = Path.Combine(dir, responseMessage.Content.Headers.ContentDisposition.FileName.Trim('"'));
+                    using (var fs = File.Open(fullName, FileMode.Create))
+                    {
+                        using (var responseStream = await responseMessage.Content.ReadAsStreamAsync())
+                        {
+                            await responseStream.CopyToAsync(fs);
+                            return fullName;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
         #endregion
+
+
     }
 }

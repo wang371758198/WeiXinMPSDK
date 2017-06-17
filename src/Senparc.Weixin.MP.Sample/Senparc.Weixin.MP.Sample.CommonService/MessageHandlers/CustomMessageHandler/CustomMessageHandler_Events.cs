@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
     
     文件名：CustomMessageHandler_Events.cs
     文件功能描述：自定义MessageHandler
@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Senparc.Weixin.MP.Agent;
 using Senparc.Weixin.Context;
+using Senparc.Weixin.Exceptions;
 using Senparc.Weixin.HttpUtility;
 using Senparc.Weixin.MP.Entities;
 using Senparc.Weixin.MP.Helpers;
@@ -41,7 +42,7 @@ namespace Senparc.Weixin.MP.Sample.CommonService.CustomMessageHandler
 您也可以直接点击菜单查看各种类型的回复。
 还可以点击菜单体验微信支付。
 
-SDK官方地址：http://weixin.senparc.com
+SDK官方地址：https://weixin.senparc.com
 SDK Demo：http://sdk.weixin.senparc.com
 源代码及Demo下载地址：https://github.com/JeffreySu/WeiXinMPSDK
 Nuget地址：https://www.nuget.org/packages/Senparc.Weixin.MP
@@ -69,6 +70,8 @@ QQ群：342319110
 【错误】    体验发生错误无法返回正确信息
 
 【容错】    体验去重容错
+
+【ex】      体验错误日志推送提醒
 ",
                 version);
         }
@@ -103,6 +106,11 @@ QQ群：342319110
             return null;//返回null，则继续执行OnTextRequest或OnEventRequest
         }
 
+        /// <summary>
+        /// 点击事件
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public override IResponseMessageBase OnEvent_ClickRequest(RequestMessageEvent_Click requestMessage)
         {
             IResponseMessageBase reponseMessage = null;
@@ -213,7 +221,7 @@ QQ群：342319110
                         {
                             Title = "OAuth2.0测试（带returnUrl），生产环境强烈推荐使用",
                             Description = "OAuth2.0测试（带returnUrl）",
-                            Url = "http://sdk.weixin.senparc.com/oauth2?returnUrl="+ returnUrl.UrlEncode(),
+                            Url = "http://sdk.weixin.senparc.com/oauth2?returnUrl=" + returnUrl.UrlEncode(),
                             PicUrl = "http://sdk.weixin.senparc.com/Images/qrcode.jpg"
                         });
 
@@ -268,6 +276,11 @@ QQ群：342319110
             return reponseMessage;
         }
 
+        /// <summary>
+        /// 进入事件
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public override IResponseMessageBase OnEvent_EnterRequest(RequestMessageEvent_Enter requestMessage)
         {
             var responseMessage = ResponseMessageBase.CreateFromRequestMessage<ResponseMessageText>(requestMessage);
@@ -275,6 +288,11 @@ QQ群：342319110
             return responseMessage;
         }
 
+        /// <summary>
+        /// 位置事件
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public override IResponseMessageBase OnEvent_LocationRequest(RequestMessageEvent_Location requestMessage)
         {
             //这里是微信客户端（通过微信服务器）自动发送过来的位置信息
@@ -283,6 +301,11 @@ QQ群：342319110
             return responseMessage;//这里也可以返回null（需要注意写日志时候null的问题）
         }
 
+        /// <summary>
+        /// 通过二维码扫描关注扫描事件
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public override IResponseMessageBase OnEvent_ScanRequest(RequestMessageEvent_Scan requestMessage)
         {
             //通过扫描关注
@@ -312,6 +335,11 @@ QQ群：342319110
             return responseMessage;
         }
 
+        /// <summary>
+        /// 打开网页事件
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public override IResponseMessageBase OnEvent_ViewRequest(RequestMessageEvent_View requestMessage)
         {
             //说明：这条消息只作为接收，下面的responseMessage到达不了客户端，类似OnEvent_UnsubscribeRequest
@@ -320,6 +348,11 @@ QQ群：342319110
             return responseMessage;
         }
 
+        /// <summary>
+        /// 群发完成事件
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
         public override IResponseMessageBase OnEvent_MassSendJobFinishRequest(RequestMessageEvent_MassSendJobFinish requestMessage)
         {
             var responseMessage = CreateResponseMessage<ResponseMessageText>();
@@ -452,6 +485,36 @@ QQ群：342319110
             var responseMessage = base.CreateResponseMessage<ResponseMessageText>();
             responseMessage.Content = "事件之弹出地理位置选择器";
             return responseMessage;
+        }
+
+        /// <summary>
+        /// 事件之发送模板消息返回结果
+        /// </summary>
+        /// <param name="requestMessage"></param>
+        /// <returns></returns>
+        public override IResponseMessageBase OnEvent_TemplateSendJobFinishRequest(RequestMessageEvent_TemplateSendJobFinish requestMessage)
+        {
+            switch (requestMessage.Status)
+            {
+                case "success":
+                    //发送成功
+                    break;
+                case "failed:user block":
+                    //送达由于用户拒收（用户设置拒绝接收公众号消息）而失败
+                    break;
+                case "failed: system failed":
+                    //送达由于其他原因失败
+                    break;
+                default:
+                    throw new WeixinException("未知模板消息状态：" + requestMessage.Status);
+            }
+
+            //注意：此方法内不能再发送模板消息，否则会造成无限循环！
+
+            //无需回复文字内容
+            //return requestMessage
+            //    .CreateResponseMessage<ResponseMessageNoResponse>();
+            return null;
         }
     }
 }

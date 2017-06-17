@@ -1,5 +1,5 @@
 ﻿/*----------------------------------------------------------------
-    Copyright (C) 2016 Senparc
+    Copyright (C) 2017 Senparc
 
     文件名：IBaseCacheStrategy.cs
     文件功能描述：缓存策略接口。
@@ -23,6 +23,9 @@ using Senparc.Weixin.Containers;
 
 namespace Senparc.Weixin.Cache
 {
+    /// <summary>
+    /// 最底层的缓存策略接口
+    /// </summary>
     public interface IBaseCacheStrategy
     {
         ///// <summary>
@@ -33,10 +36,10 @@ namespace Senparc.Weixin.Cache
         /// <summary>
         /// 创建一个（分布）锁
         /// </summary>
-        /// <param name="resourceName"></param>
-        /// <param name="key"></param>
-        /// <param name="retryCount"></param>
-        /// <param name="retryDelay"></param>
+        /// <param name="resourceName">资源名称</param>
+        /// <param name="key">Key标识</param>
+        /// <param name="retryCount">重试次数</param>
+        /// <param name="retryDelay">重试延时</param>
         /// <returns></returns>
         ICacheLock BeginCacheLock(string resourceName, string key, int retryCount = 0, TimeSpan retryDelay = new TimeSpan());
     }
@@ -45,7 +48,7 @@ namespace Senparc.Weixin.Cache
     /// 公共缓存策略接口
     /// </summary>
     public interface IBaseCacheStrategy<TKey, TValue> : IBaseCacheStrategy
-        //where TValue : class
+    //where TValue : class
     {
         /// <summary>
         /// 获取缓存中最终的键，如Container建议格式： return String.Format("{0}:{1}", "SenparcWeixinContainer", key);
